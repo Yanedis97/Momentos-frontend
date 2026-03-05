@@ -9,23 +9,35 @@ async function handleResponse(res: Response) {
 }
 
 export async function apiGet(endpoint: string) {
-  const res = await fetch(`${API_URL}${endpoint}`);
-  return handleResponse(res);
+    const token = localStorage.getItem("access_token");
+    
+    const res = await fetch(`${API_URL}${endpoint}`,{
+        headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+        },
+    });
+    return handleResponse(res);
 }
 
 export async function apiPost(endpoint: string, body: unknown) {
+  const token = localStorage.getItem("access_token");
   const res = await fetch(`${API_URL}${endpoint}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  return handleResponse(res);
+      method: "POST",
+      headers: { "Content-Type": "application/json", 
+        Authorization: token ? `Bearer ${token}` : "" 
+        },
+      body: JSON.stringify(body),
+    });
+    return handleResponse(res);
 }
 
 export async function apiPut(endpoint: string, body: unknown) {
+  const token = localStorage.getItem("access_token");
   const res = await fetch(`${API_URL}${endpoint}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", 
+        Authorization: token ? `Bearer ${token}` : "" 
+        },
     body: JSON.stringify(body),
   });
   return handleResponse(res);

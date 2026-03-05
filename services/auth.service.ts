@@ -1,7 +1,7 @@
 const API_URL = "http://localhost:8000"; // ajusta si tu backend usa otro puerto
 
 export async function loginUser(email: string, password: string) {
-  const response = await fetch(`${API_URL}/login`, {
+  const response = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -16,5 +16,9 @@ export async function loginUser(email: string, password: string) {
     throw new Error("Credenciales incorrectas");
   }
 
-  return response.json();
+  const data = await response.json();
+
+  localStorage.setItem("token", data.access_token);
+
+  return data;
 }
