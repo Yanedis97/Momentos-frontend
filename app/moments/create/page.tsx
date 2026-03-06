@@ -1,92 +1,175 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { useState } from "react";
-import Link from "next/link";
 
 export default function CrearMomentoPage() {
-  const params = useParams();
-  const id = params.id;
 
   const [form, setForm] = useState({
-    tipo: "",
-    descripcion: "",
-    fecha: "",
+    title: "",
+    country: "",
+    city: "",
+    year: "",
+    inicio: "",
+    contexto: "",
+    evento: "",
+    suceso: "",
+    reaccion: "",
+    dato_curioso: "",
+    deportistas: "",
+    publico: false
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+
+    const { name, value } = e.target;
+
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value
     });
+
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({
-      jugadorId: id,
-      ...form,
-    });
+
+    const payload = {
+      title: form.title,
+      year: Number(form.year),
+      location: {
+        country: form.country,
+        city: form.city
+      },
+      states: {
+        inicio: { text: form.inicio },
+        contexto: { text: form.contexto },
+        evento: { text: form.evento },
+        suceso: { text: form.suceso },
+        reaccion: { text: form.reaccion },
+        dato_curioso: { text: form.dato_curioso }
+      },
+      observables: {
+        deportistas: form.deportistas.split(","),
+        publico: form.publico
+      }
+    };
+
+    console.log(payload);
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-950 p-6">
+
+    <main className="min-h-screen bg-gray-950 p-8 flex justify-center">
+
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-xl space-y-6 rounded-2xl bg-gray-900 p-8 shadow-2xl text-white"
+        className="w-full max-w-3xl space-y-8 rounded-2xl border border-gray-800 bg-gray-900 p-8 shadow-2xl text-white"
       >
-        <Link
-          href={`/jugadores/${id}/momentos`}
-          className="text-blue-400 hover:underline"
-        >
-          ← Volver a momentos
-        </Link>
 
-        <h2 className="text-center text-3xl font-bold">
-          Crear Nuevo Momento
-        </h2>
+        <h1 className="text-3xl font-bold text-center">
+          Crear Momento
+        </h1>
 
-        <select
-          name="tipo"
-          value={form.tipo}
-          onChange={handleChange}
-          required
-          className="w-full rounded-lg bg-gray-800 p-3 outline-none focus:ring-2 focus:ring-green-500"
-        >
-          <option value="">Selecciona tipo</option>
-          <option value="Gol">Gol</option>
-          <option value="Asistencia">Asistencia</option>
-          <option value="Tarjeta Amarilla">Tarjeta Amarilla</option>
-          <option value="Tarjeta Roja">Tarjeta Roja</option>
-        </select>
+        {/* INFORMACIÓN GENERAL */}
 
-        <textarea
-          name="descripcion"
-          placeholder="Descripción del momento"
-          value={form.descripcion}
-          onChange={handleChange}
-          required
-          className="w-full rounded-lg bg-gray-800 p-3 outline-none focus:ring-2 focus:ring-green-500"
-        />
+        <div className="space-y-4">
 
-        <input
-          type="date"
-          name="fecha"
-          value={form.fecha}
-          onChange={handleChange}
-          required
-          className="w-full rounded-lg bg-gray-800 p-3 outline-none focus:ring-2 focus:ring-green-500"
-        />
+          <h2 className="text-lg font-semibold text-gray-300">
+            Información general
+          </h2>
+
+          <input
+            name="title"
+            placeholder="Título del momento"
+            onChange={handleChange}
+            className="w-full rounded-lg bg-gray-800 p-3"
+          />
+
+          <div className="grid grid-cols-3 gap-4">
+
+            <input
+              name="year"
+              placeholder="Año"
+              onChange={handleChange}
+              className="rounded-lg bg-gray-800 p-3"
+            />
+
+            <input
+              name="country"
+              placeholder="País"
+              onChange={handleChange}
+              className="rounded-lg bg-gray-800 p-3"
+            />
+
+            <input
+              name="city"
+              placeholder="Ciudad"
+              onChange={handleChange}
+              className="rounded-lg bg-gray-800 p-3"
+            />
+
+          </div>
+
+        </div>
+
+        {/* DESARROLLO DEL MOMENTO */}
+
+        <div className="space-y-4">
+
+          <h2 className="text-lg font-semibold text-gray-300">
+            Desarrollo del momento
+          </h2>
+
+          <textarea name="inicio" placeholder="Inicio" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="contexto" placeholder="Contexto" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="evento" placeholder="Evento" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="suceso" placeholder="Suceso" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="reaccion" placeholder="Reacción" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="dato_curioso" placeholder="Dato curioso" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+
+        </div>
+
+        {/* OBSERVABLES */}
+
+        <div className="space-y-4">
+
+          <h2 className="text-lg font-semibold text-gray-300">
+            Observables
+          </h2>
+
+          <input
+            name="deportistas"
+            placeholder="Deportistas (separados por coma)"
+            onChange={handleChange}
+            className="w-full rounded-lg bg-gray-800 p-3"
+          />
+
+          <label className="flex items-center gap-3">
+
+            <input
+              type="checkbox"
+              onChange={(e) =>
+                setForm({ ...form, publico: e.target.checked })
+              }
+            />
+
+            Había público
+
+          </label>
+
+        </div>
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-green-600 p-3 font-semibold transition hover:bg-green-700"
+          className="w-full rounded-lg bg-green-600 p-3 font-semibold hover:bg-green-700"
         >
-          Guardar Momento
+          Crear momento
         </button>
+
       </form>
+
     </main>
   );
 }

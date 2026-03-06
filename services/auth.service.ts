@@ -12,13 +12,12 @@ export async function loginUser(email: string, password: string) {
     }),
   });
 
+  const data = await response.json();
   if (!response.ok) {
-    throw new Error("Credenciales incorrectas");
+    throw new Error(data.detail || "Error en el login");
   }
 
-  const data = await response.json();
-
-  localStorage.setItem("token", data.access_token);
+  localStorage.setItem("access_token", data.access_token);
 
   return data;
 }

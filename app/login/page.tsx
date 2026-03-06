@@ -1,41 +1,57 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { loginUser } from "@/services/auth.service";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const data = await loginUser(email, password);
-      console.log("Login exitoso:", data);
-
-      alert("Login exitoso");
-
-    } catch (error) {
-      console.error(error);
-      alert("Error en el login");
+      await loginUser(email, password);
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
+      else setError("Error inesperado");
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-950">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-6">
+
+      <div className="absolute h-[400px] w-[400px] rounded-full bg-blue-600/20 blur-3xl"></div>
+
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-md flex-col gap-4 rounded-2xl bg-gray-900 p-8 shadow-2xl"
+        className="relative z-10 flex w-full max-w-md flex-col gap-5 rounded-2xl border border-gray-800 bg-gray-900/80 p-10 shadow-2xl backdrop-blur"
       >
-        <h2 className="text-2xl font-bold text-white text-center">
-          Iniciar Sesión
-        </h2>
+        <div className="text-center space-y-2">
+          <div className="text-4xl">⚽</div>
+          <h2 className="text-2xl font-bold text-white">
+            Bienvenido
+          </h2>
+          <p className="text-gray-400 text-sm">
+            Inicia sesión para continuar
+          </p>
+        </div>
+
+        {error && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400 text-center">
+            {error}
+          </div>
+        )}
 
         <input
           type="email"
           placeholder="Correo electrónico"
-          className="rounded-lg bg-gray-800 p-3 text-white outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-gray-800 bg-gray-800 p-3 text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -44,7 +60,7 @@ export default function LoginPage() {
         <input
           type="password"
           placeholder="Contraseña"
-          className="rounded-lg bg-gray-800 p-3 text-white outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-gray-800 bg-gray-800 p-3 text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -52,7 +68,7 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 p-3 font-semibold text-white transition hover:bg-blue-700"
+          className="mt-2 rounded-lg bg-blue-600 p-3 font-semibold text-white transition hover:bg-blue-700 active:scale-[0.98]"
         >
           Entrar
         </button>
