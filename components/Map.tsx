@@ -1,13 +1,11 @@
 "use client";
 
-import { useMapEvents } from "react-leaflet";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useState } from "react";
 
 // Fix icon default problem
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: string })._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -17,12 +15,14 @@ L.Icon.Default.mergeOptions({
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-export default function Map() {
-  const [position, setPosition] = useState<[number, number] | null>(null);
+type MapProps = {
+  position: [number, number] | null;
+};
 
+export default function Map({ position }: MapProps) {
   return (
     <MapContainer
-      center={[4.7110, -74.0721]} // Bogotá por defecto
+      center={[4.711, -74.0721]}
       zoom={13}
       style={{ height: "400px", width: "100%" }}
     >
@@ -33,25 +33,9 @@ export default function Map() {
 
       {position && (
         <Marker position={position}>
-          <Popup>Punto seleccionado</Popup>
+          <Popup>Nuevo momento descubierto</Popup>
         </Marker>
       )}
-
-      <MapClickHandler setPosition={setPosition} />
     </MapContainer>
   );
-}
-
-function MapClickHandler({
-  setPosition,
-}: {
-  setPosition: (pos: [number, number]) => void;
-}) {
-  useMapEvents({
-    click(e) {
-      setPosition([e.latlng.lat, e.latlng.lng]);
-    },
-  });
-
-  return null;
 }

@@ -1,12 +1,43 @@
 "use client";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+import { getDiscovery } from "@/services/discoveries.service";
 
 const Map = dynamic(() => import("@/components/Map"), {
   ssr: false,
 });
 
 export default function DashboardPage() {
+
+  const [position, setPosition] = useState<[number, number] | null>(null);
+
+  const playerId = "player123";
+
+  useEffect(() => {
+    async function loadMoment() {
+
+      const moment = await getDiscovery(playerId);
+
+      if (moment?.location) {
+        setPosition([
+          moment.location.lat,
+          moment.location.lng
+        ]);
+      }
+    }
+
+    loadMoment();
+
+    const interval = setInterval(() => {
+      loadMoment();
+    }, 300000);
+
+    return () => clearInterval(interval);
+
+  }, [playerId]);
+
   return (
     <main className="min-h-screen bg-gray-950 p-8 text-white">
 
@@ -58,7 +89,7 @@ export default function DashboardPage() {
             </h2>
 
             <div className="overflow-hidden rounded-xl">
-              <Map />
+              <Map position={position} />
             </div>
 
           </div>
