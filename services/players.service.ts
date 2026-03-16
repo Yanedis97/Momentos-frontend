@@ -9,7 +9,7 @@ export const getPlayer = async (PlayerId: string): Promise<Player> => {
   return apiGet(`/players/${PlayerId}`);
 };
 
-export const createPlayer = async (Player: Player) => {
+export const createPlayer = async (Player: Partial<Player>) => {
   return apiPost("/players/", Player);
 };
 

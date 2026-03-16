@@ -1,8 +1,14 @@
 "use client";
 
+import { createPlayer } from "@/services/players.service";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function CrearJugadorPage() {
+
+  const router = useRouter();
+
+  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     username: "",
@@ -20,13 +26,18 @@ export default function CrearJugadorPage() {
 
     setForm({
       ...form,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]:
+        type === "checkbox"
+          ? (e.target as HTMLInputElement).checked
+          : value,
     });
 
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
+    setError(null);
 
     const payload = {
       username: form.username,
@@ -40,7 +51,19 @@ export default function CrearJugadorPage() {
       },
     };
 
-    console.log(payload);
+    try {
+
+      await createPlayer(payload);
+
+      router.push("/players");
+
+    } catch (err: unknown) {
+
+      if (err instanceof Error) setError(err.message);
+      else setError("Error inesperado");
+
+    }
+
   };
 
   return (
@@ -52,6 +75,7 @@ export default function CrearJugadorPage() {
       >
 
         <div className="text-center space-y-2">
+
           <div className="text-4xl">👤</div>
 
           <h2 className="text-3xl font-bold">
@@ -61,7 +85,14 @@ export default function CrearJugadorPage() {
           <p className="text-gray-400 text-sm">
             Registra un nuevo usuario del sistema
           </p>
+
         </div>
+
+        {error && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400 text-center">
+            {error}
+          </div>
+        )}
 
         {/* INFORMACIÓN BÁSICA */}
 
@@ -107,8 +138,10 @@ export default function CrearJugadorPage() {
             onChange={handleChange}
             className="w-full rounded-lg border border-gray-800 bg-gray-800 p-3 outline-none focus:border-blue-500"
           >
+
             <option value="es">Español</option>
             <option value="en">Inglés</option>
+
           </select>
 
           <select
@@ -117,9 +150,11 @@ export default function CrearJugadorPage() {
             onChange={handleChange}
             className="w-full rounded-lg border border-gray-800 bg-gray-800 p-3 outline-none focus:border-blue-500"
           >
+
             <option value="beginner">Principiante</option>
             <option value="intermediate">Intermedio</option>
             <option value="advanced">Avanzado</option>
+
           </select>
 
         </div>

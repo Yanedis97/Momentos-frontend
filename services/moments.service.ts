@@ -9,7 +9,7 @@ export const getMoment = async (momentId: string): Promise<Moment> => {
   return apiGet(`/moments/${momentId}`);
 };
 
-export const createMoment = async (moment: Moment) => {
+export const createMoment = async (moment: Partial<Moment>) => {
   return apiPost("/moments/", moment);
 };
 

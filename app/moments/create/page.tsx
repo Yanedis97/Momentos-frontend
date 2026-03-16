@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createMoment } from "@/services/moments.service";
 
 export default function CrearMomentoPage() {
+
+  const router = useRouter();
+
+  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -23,25 +29,32 @@ export default function CrearMomentoPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
 
-    const { name, value } = e.target;
+    const { name, value, type } = e.target as HTMLInputElement;
 
     setForm({
       ...form,
-      [name]: value
+      [name]:
+        type === "checkbox"
+          ? (e.target as HTMLInputElement).checked
+          : value
     });
 
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
+    setError(null);
 
     const payload = {
       title: form.title,
       year: Number(form.year),
+
       location: {
         country: form.country,
         city: form.city
       },
+
       states: {
         inicio: { text: form.inicio },
         contexto: { text: form.contexto },
@@ -50,13 +63,30 @@ export default function CrearMomentoPage() {
         reaccion: { text: form.reaccion },
         dato_curioso: { text: form.dato_curioso }
       },
+
       observables: {
-        deportistas: form.deportistas.split(","),
+        deportistas: form.deportistas
+          .split(",")
+          .map((d) => d.trim())
+          .filter(Boolean),
+
         publico: form.publico
       }
     };
 
-    console.log(payload);
+    try {
+
+      await createMoment(payload);
+
+      router.push("/moments");
+
+    } catch (err: unknown) {
+
+      if (err instanceof Error) setError(err.message);
+      else setError("Error inesperado");
+
+    }
+
   };
 
   return (
@@ -72,6 +102,12 @@ export default function CrearMomentoPage() {
           Crear Momento
         </h1>
 
+        {error && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400 text-center">
+            {error}
+          </div>
+        )}
+
         {/* INFORMACIÓN GENERAL */}
 
         <div className="space-y-4">
@@ -83,7 +119,9 @@ export default function CrearMomentoPage() {
           <input
             name="title"
             placeholder="Título del momento"
+            value={form.title}
             onChange={handleChange}
+            required
             className="w-full rounded-lg bg-gray-800 p-3"
           />
 
@@ -92,21 +130,27 @@ export default function CrearMomentoPage() {
             <input
               name="year"
               placeholder="Año"
+              value={form.year}
               onChange={handleChange}
+              required
               className="rounded-lg bg-gray-800 p-3"
             />
 
             <input
               name="country"
               placeholder="País"
+              value={form.country}
               onChange={handleChange}
+              required
               className="rounded-lg bg-gray-800 p-3"
             />
 
             <input
               name="city"
               placeholder="Ciudad"
+              value={form.city}
               onChange={handleChange}
+              required
               className="rounded-lg bg-gray-800 p-3"
             />
 
@@ -122,12 +166,12 @@ export default function CrearMomentoPage() {
             Desarrollo del momento
           </h2>
 
-          <textarea name="inicio" placeholder="Inicio" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
-          <textarea name="contexto" placeholder="Contexto" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
-          <textarea name="evento" placeholder="Evento" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
-          <textarea name="suceso" placeholder="Suceso" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
-          <textarea name="reaccion" placeholder="Reacción" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
-          <textarea name="dato_curioso" placeholder="Dato curioso" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="inicio" value={form.inicio} placeholder="Inicio" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="contexto" value={form.contexto} placeholder="Contexto" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="evento" value={form.evento} placeholder="Evento" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="suceso" value={form.suceso} placeholder="Suceso" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="reaccion" value={form.reaccion} placeholder="Reacción" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
+          <textarea name="dato_curioso" value={form.dato_curioso} placeholder="Dato curioso" onChange={handleChange} className="w-full bg-gray-800 p-3 rounded-lg"/>
 
         </div>
 
@@ -142,6 +186,7 @@ export default function CrearMomentoPage() {
           <input
             name="deportistas"
             placeholder="Deportistas (separados por coma)"
+            value={form.deportistas}
             onChange={handleChange}
             className="w-full rounded-lg bg-gray-800 p-3"
           />
@@ -150,9 +195,9 @@ export default function CrearMomentoPage() {
 
             <input
               type="checkbox"
-              onChange={(e) =>
-                setForm({ ...form, publico: e.target.checked })
-              }
+              name="publico"
+              checked={form.publico}
+              onChange={handleChange}
             />
 
             Había público
