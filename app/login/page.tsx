@@ -33,7 +33,6 @@ export default function LoginPage() {
         className="relative z-10 flex w-full max-w-md flex-col gap-5 rounded-2xl border border-gray-800 bg-gray-900/80 p-10 shadow-2xl backdrop-blur"
       >
         <div className="text-center space-y-2">
-          <div className="text-4xl">⚽</div>
           <h2 className="text-2xl font-bold text-white">
             Bienvenido
           </h2>

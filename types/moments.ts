@@ -1,6 +1,8 @@
 export interface Location {
   country: string;
   city: string;
+  lat: number;
+  lng: number;
 }
 
 export interface TextBlock {

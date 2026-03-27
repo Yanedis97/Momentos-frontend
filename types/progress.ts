@@ -20,7 +20,9 @@ export interface PlayStepRequest {
 }
 
 export interface PlayStepResponse {
-  message: string;
-  current_step: string;
-  completed: boolean;
+  moment_id: string;
+  step: string;
+  text: string;
+  next_step: string | null;
+  is_last: boolean;
 }

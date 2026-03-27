@@ -17,9 +17,10 @@ L.Icon.Default.mergeOptions({
 
 type MapProps = {
   position: [number, number] | null;
+  onSelectMoment?: () => void;
 };
 
-export default function Map({ position }: MapProps) {
+export default function Map({ position, onSelectMoment }: MapProps) {
   return (
     <MapContainer
       center={[4.711, -74.0721]}
@@ -32,7 +33,14 @@ export default function Map({ position }: MapProps) {
       />
 
       {position && (
-        <Marker position={position}>
+        <Marker 
+          position={position}
+          eventHandlers={{
+            click: () => {
+              onSelectMoment?.();
+            }
+          }}
+          >
           <Popup>Nuevo momento descubierto</Popup>
         </Marker>
       )}
