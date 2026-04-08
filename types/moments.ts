@@ -5,17 +5,27 @@ export interface Location {
   lng: number;
 }
 
-export interface TextBlock {
+export interface Choice {
+  id: string;
+  label: string;
+  next: string;
+}
+
+export type StepType =
+  | "narrative"
+  | "decision"
+  | "cinematic"
+  | "reveal";
+
+export interface State {
+  type: StepType;
   text: string;
+  next?: string;
+  choices?: Choice[];
 }
 
 export interface States {
-  inicio: TextBlock;
-  contexto: TextBlock;
-  evento: TextBlock;
-  suceso: TextBlock;
-  reaccion: TextBlock;
-  dato_curioso: TextBlock;
+  [key: string]: State; 
 }
 
 export interface Observables {
@@ -23,10 +33,17 @@ export interface Observables {
   publico: boolean;
 }
 
+export interface Timeline {
+  year: number;
+  date?: string;
+  label?: string;
+}
+
 export interface Moment {
   title: string;
   location: Location;
   year: number;
+  timeline?: Timeline;
   states: States;
   observables: Observables;
 }

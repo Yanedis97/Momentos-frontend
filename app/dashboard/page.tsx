@@ -10,7 +10,7 @@ const Map = dynamic(() => import("@/components/Map"), {
 });
 
 export default function DashboardPage() {
-  
+
   const [isMounted, setIsMounted] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
 
@@ -24,28 +24,45 @@ export default function DashboardPage() {
 
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [currentMoment, setCurrentMoment] = useState<Moment | null>(null);
+
+  // estado estable
+  const [activeMomentId, setActiveMomentId] = useState<string | null>(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
 
   function handlePlay() {
     if (!currentMoment) return;
+
+    // guardas solo el id (NO el objeto completo)
+    setActiveMomentId(currentMoment.moment_id);
+
+    // opcional pero recomendado → limpiar estado visual
+    setCurrentMoment(null);
+
     setIsPlaying(true);
+  }
+
+  function handleFinish() {
+    setIsPlaying(false);
+
+    // limpiar estado al salir
+    setActiveMomentId(null);
   }
 
   useEffect(() => {
     setIsMounted(true);
-    
+
     const storedId = localStorage.getItem("player_id");
     setPlayerId(storedId);
   }, []);
 
   useEffect(() => {
-    if (!playerId) return;
-
-    const safePlayerId = playerId;
+    if (!playerId || isPlaying) return; // no recargar mientras juega
 
     async function loadMoment() {
       try {
-        const moment = await getDiscovery(safePlayerId);
+        const moment = await getDiscovery(playerId);
+
         setCurrentMoment(moment);
 
         if (moment?.location) {
@@ -54,6 +71,7 @@ export default function DashboardPage() {
             moment.location.lng,
           ]);
         }
+
       } catch (error) {
         console.error("Error loading moment:", error);
       }
@@ -64,19 +82,19 @@ export default function DashboardPage() {
     const interval = setInterval(loadMoment, 300000);
     return () => clearInterval(interval);
 
-  }, [playerId]);
+  }, [playerId, isPlaying]);
 
   if (!isMounted) return null;
-
   if (!playerId) return null;
 
-  if (isPlaying && currentMoment) {
+  // USAR activeMomentId (NO currentMoment)
+  if (isPlaying && activeMomentId) {
     return (
       <main className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
         <MomentPlayer
           playerId={playerId}
-          momentId={currentMoment.moment_id}
-          onFinish={() => setIsPlaying(false)}
+          momentId={activeMomentId}
+          onFinish={handleFinish}
         />
       </main>
     );
@@ -123,8 +141,8 @@ export default function DashboardPage() {
             </h2>
 
             <div className="overflow-hidden rounded-xl">
-              <Map 
-                position={position} 
+              <Map
+                position={position}
                 onSelectMoment={handlePlay}
               />
             </div>

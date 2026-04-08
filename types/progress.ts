@@ -19,10 +19,39 @@ export interface PlayStepRequest {
   step: string;
 }
 
+export type StepType =
+  | "scene"
+  | "decision"
+  | "pause"
+  | "reveal";
+
+export interface Scene {
+  bg?: string;
+  audio?: string;
+  text?: string;
+  pace?: "slow" | "medium" | "fast";
+}
+
+export interface Choice {
+  id: string;
+  label: string;
+  next: string;
+}
+
 export interface PlayStepResponse {
   moment_id: string;
   step: string;
-  text: string;
-  next_step: string | null;
+  type: StepType;
+
+  scene?: Scene;
+
+  autoNext?: number;
+  duration?: number;
+
+  choices?: Choice[];
+
+  next_step?: string | null;
   is_last: boolean;
+
+  flags?: Record<string, any>;
 }
