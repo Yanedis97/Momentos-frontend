@@ -1,9 +1,13 @@
 export interface PlayerProgress {
   player_id: string;
   moment_id: string;
+  status: string;
   current_step: string;
-  completed: boolean;
-  paused: boolean;
+  last_interaction_at: string;
+  completed_at: string | null;
+  title?: string;
+  country?: string;
+  year?: number;
 }
 
 export interface PaginatedPlayerMoments {
@@ -17,6 +21,7 @@ export interface PlayStepRequest {
   moment_id: string;
   player_id: string;
   step: string;
+  choice_next?: string | null;
 }
 
 export type StepType =
@@ -30,6 +35,7 @@ export interface Scene {
   audio?: string;
   text?: string;
   pace?: "slow" | "medium" | "fast";
+  autoNext?: number;
 }
 
 export interface Choice {
@@ -53,5 +59,12 @@ export interface PlayStepResponse {
   next_step?: string | null;
   is_last: boolean;
 
-  flags?: Record<string, any>;
+  flags?: Record<string, unknown>;
+}
+
+export interface StartStepResponse {
+  player_id: string;
+  moment_id: string;
+  start_step: string;
+  is_new: boolean;
 }

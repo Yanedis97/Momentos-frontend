@@ -8,70 +8,154 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       await loginUser(email, password);
       router.push("/dashboard");
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
       else setError("Error inesperado");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const fieldStyle: React.CSSProperties = {
+    width: "100%",
+    background: "rgba(201,168,76,0.04)",
+    border: "1px solid rgba(201,168,76,0.15)",
+    padding: "12px 14px",
+    fontSize: 13,
+    color: "#f0ede8",
+    fontFamily: "'DM Sans', system-ui, sans-serif",
+    outline: "none",
+  };
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-6">
+    <main style={{
+      minHeight: "100vh",
+      background: "#0a0a0f",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24,
+      position: "relative",
+      fontFamily: "'DM Sans', system-ui, sans-serif",
+    }}>
+      {/* Glow central */}
+      <div style={{
+        position: "absolute",
+        width: 400,
+        height: 400,
+        borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%)",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        pointerEvents: "none",
+      }} />
 
-      <div className="absolute h-[400px] w-[400px] rounded-full bg-blue-600/20 blur-3xl"></div>
-
-      <form
-        onSubmit={handleSubmit}
-        className="relative z-10 flex w-full max-w-md flex-col gap-5 rounded-2xl border border-gray-800 bg-gray-900/80 p-10 shadow-2xl backdrop-blur"
-      >
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-white">
-            Bienvenido
-          </h2>
-          <p className="text-gray-400 text-sm">
+      <div style={{
+        position: "relative",
+        zIndex: 1,
+        width: "100%",
+        maxWidth: 380,
+        border: "1px solid rgba(201,168,76,0.15)",
+        padding: "40px 36px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+      }}>
+        {/* Header */}
+        <div style={{ textAlign: "center" }}>
+          <h1 style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 24,
+            color: "#c9a84c",
+            letterSpacing: "0.06em",
+            margin: "0 0 6px",
+            fontWeight: 400,
+          }}>
+            Momentos
+          </h1>
+          <p style={{
+            fontSize: 10,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            color: "#9a9590",
+            margin: 0,
+          }}>
             Inicia sesión para continuar
           </p>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400 text-center">
+          <div style={{
+            border: "1px solid rgba(220,38,38,0.3)",
+            background: "rgba(220,38,38,0.08)",
+            padding: "10px 14px",
+            fontSize: 12,
+            color: "#f87171",
+            textAlign: "center",
+            letterSpacing: "0.02em",
+          }}>
             {error}
           </div>
         )}
 
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          className="rounded-lg border border-gray-800 bg-gray-800 p-3 text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        {/* Campos */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <input
+            type="email"
+            placeholder="Correo electrónico"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={fieldStyle}
+          />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={fieldStyle}
+          />
+        </div>
 
-        <input
-          type="password"
-          placeholder="Contraseña"
-          className="rounded-lg border border-gray-800 bg-gray-800 p-3 text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
+        {/* Botón */}
         <button
           type="submit"
-          className="mt-2 rounded-lg bg-blue-600 p-3 font-semibold text-white transition hover:bg-blue-700 active:scale-[0.98]"
+          disabled={loading}
+          onClick={(e) => {
+            e.preventDefault();
+            const form = (e.target as HTMLElement).closest("div")?.parentElement;
+            if (form) handleSubmit({ preventDefault: () => {} } as React.FormEvent<HTMLFormElement>);
+          }}
+          style={{
+            width: "100%",
+            padding: 13,
+            background: "transparent",
+            border: "1px solid rgba(201,168,76,0.4)",
+            color: "#c9a84c",
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.5 : 1,
+            marginTop: 4,
+          }}
         >
-          Entrar
+          {loading ? "Entrando..." : "Entrar →"}
         </button>
-      </form>
+      </div>
     </main>
   );
 }

@@ -5,11 +5,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function CrearJugadorPage() {
-
   const router = useRouter();
-
   const [error, setError] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -18,179 +16,148 @@ export default function CrearJugadorPage() {
     show_paused_first: true,
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-
     setForm({
       ...form,
-      [name]:
-        type === "checkbox"
-          ? (e.target as HTMLInputElement).checked
-          : value,
+      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     });
-
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-
     e.preventDefault();
     setError(null);
-
-    const payload = {
-      username: form.username,
-      email: form.email,
-      profile: {
-        language: form.language,
-        experience_level: form.experience_level,
-        preferences: {
-          show_paused_first: form.show_paused_first,
-        },
-      },
-    };
-
+    setLoading(true);
     try {
-
-      await createPlayer(payload);
-
+      await createPlayer({
+        username: form.username,
+        email: form.email,
+        profile: {
+          language: form.language,
+          experience_level: form.experience_level,
+          preferences: { show_paused_first: form.show_paused_first },
+        },
+      });
       router.push("/players");
-
     } catch (err: unknown) {
-
       if (err instanceof Error) setError(err.message);
       else setError("Error inesperado");
-
+    } finally {
+      setLoading(false);
     }
+  };
 
+  const fieldStyle: React.CSSProperties = {
+    width: "100%",
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(201,168,76,0.12)",
+    padding: "11px 14px",
+    fontSize: 13,
+    color: "#f0ede8",
+    fontFamily: "'DM Sans', system-ui, sans-serif",
+    outline: "none",
+    marginBottom: 10,
+  };
+
+  const sectionLabel: React.CSSProperties = {
+    fontSize: 9,
+    letterSpacing: "0.2em",
+    textTransform: "uppercase",
+    color: "rgba(201,168,76,0.55)",
+    marginBottom: 12,
+    marginTop: 20,
+    display: "block",
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-950 p-6">
-
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-xl space-y-6 rounded-2xl border border-gray-800 bg-gray-900 p-8 shadow-2xl text-white"
-      >
-
-        <div className="text-center space-y-2">
-
-          <div className="text-4xl">👤</div>
-
-          <h2 className="text-3xl font-bold">
-            Crear Jugador
-          </h2>
-
-          <p className="text-gray-400 text-sm">
-            Registra un nuevo usuario del sistema
-          </p>
-
-        </div>
+    <main style={{
+      minHeight: "100vh",
+      background: "#0a0a0f",
+      color: "#f0ede8",
+      fontFamily: "'DM Sans', system-ui, sans-serif",
+      fontWeight: 300,
+      display: "flex",
+      justifyContent: "center",
+      padding: "40px 24px",
+    }}>
+      <form onSubmit={handleSubmit} style={{
+        width: "100%",
+        maxWidth: 480,
+        border: "1px solid rgba(201,168,76,0.12)",
+        padding: "36px 32px",
+        display: "flex",
+        flexDirection: "column",
+      }}>
+        {/* Header */}
+        <h1 style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: 22,
+          color: "#f0ede8",
+          fontWeight: 400,
+          margin: "0 0 4px",
+        }}>
+          Crear jugador
+        </h1>
+        <p style={{
+          fontSize: 11,
+          letterSpacing: "0.08em",
+          color: "#9a9590",
+          margin: "0 0 28px",
+        }}>
+          Registra un nuevo usuario del sistema
+        </p>
 
         {error && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400 text-center">
+          <div style={{
+            border: "1px solid rgba(220,38,38,0.3)",
+            background: "rgba(220,38,38,0.08)",
+            padding: "10px 14px",
+            fontSize: 12,
+            color: "#f87171",
+            marginBottom: 20,
+          }}>
             {error}
           </div>
         )}
 
-        {/* INFORMACIÓN BÁSICA */}
+        <span style={sectionLabel}>Información básica</span>
+        <input name="username" type="text" placeholder="Nombre de usuario" value={form.username} onChange={handleChange} required style={fieldStyle} />
+        <input name="email" type="email" placeholder="Correo electrónico" value={form.email} onChange={handleChange} required style={fieldStyle} />
 
-        <div className="space-y-4">
+        <span style={sectionLabel}>Perfil</span>
+        <select name="language" value={form.language} onChange={handleChange} style={fieldStyle}>
+          <option value="es">Español</option>
+          <option value="en">Inglés</option>
+        </select>
+        <select name="experience_level" value={form.experience_level} onChange={handleChange} style={fieldStyle}>
+          <option value="beginner">Principiante</option>
+          <option value="intermediate">Intermedio</option>
+          <option value="advanced">Avanzado</option>
+        </select>
 
-          <h3 className="text-lg font-semibold text-gray-300">
-            Información básica
-          </h3>
+        <span style={sectionLabel}>Preferencias</span>
+        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: "#9a9590", cursor: "pointer" }}>
+          <input type="checkbox" name="show_paused_first" checked={form.show_paused_first} onChange={handleChange} />
+          Mostrar momentos pausados primero
+        </label>
 
-          <input
-            type="text"
-            name="username"
-            placeholder="Nombre de usuario"
-            value={form.username}
-            onChange={handleChange}
-            required
-            className="w-full rounded-lg border border-gray-800 bg-gray-800 p-3 outline-none focus:border-blue-500"
-          />
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Correo electrónico"
-            value={form.email}
-            onChange={handleChange}
-            required
-            className="w-full rounded-lg border border-gray-800 bg-gray-800 p-3 outline-none focus:border-blue-500"
-          />
-
-        </div>
-
-        {/* PERFIL */}
-
-        <div className="space-y-4">
-
-          <h3 className="text-lg font-semibold text-gray-300">
-            Perfil
-          </h3>
-
-          <select
-            name="language"
-            value={form.language}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-gray-800 bg-gray-800 p-3 outline-none focus:border-blue-500"
-          >
-
-            <option value="es">Español</option>
-            <option value="en">Inglés</option>
-
-          </select>
-
-          <select
-            name="experience_level"
-            value={form.experience_level}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-gray-800 bg-gray-800 p-3 outline-none focus:border-blue-500"
-          >
-
-            <option value="beginner">Principiante</option>
-            <option value="intermediate">Intermedio</option>
-            <option value="advanced">Avanzado</option>
-
-          </select>
-
-        </div>
-
-        {/* PREFERENCIAS */}
-
-        <div className="space-y-4">
-
-          <h3 className="text-lg font-semibold text-gray-300">
-            Preferencias
-          </h3>
-
-          <label className="flex items-center gap-3 text-sm">
-
-            <input
-              type="checkbox"
-              name="show_paused_first"
-              checked={form.show_paused_first}
-              onChange={handleChange}
-            />
-
-            Mostrar momentos pausados primero
-
-          </label>
-
-        </div>
-
-        <button
-          type="submit"
-          className="w-full rounded-lg bg-green-600 p-3 font-semibold transition hover:bg-green-700 active:scale-[0.98]"
-        >
-          Crear jugador
+        <button type="submit" disabled={loading} style={{
+          width: "100%",
+          padding: 13,
+          background: "transparent",
+          border: "1px solid rgba(201,168,76,0.4)",
+          color: "#c9a84c",
+          fontFamily: "'DM Sans', system-ui, sans-serif",
+          fontSize: 11,
+          letterSpacing: "0.15em",
+          textTransform: "uppercase",
+          cursor: loading ? "not-allowed" : "pointer",
+          opacity: loading ? 0.5 : 1,
+          marginTop: 28,
+        }}>
+          {loading ? "Creando..." : "Crear jugador →"}
         </button>
-
       </form>
-
     </main>
   );
 }

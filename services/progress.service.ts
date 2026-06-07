@@ -4,6 +4,7 @@ import {
   PaginatedPlayerMoments,
   PlayStepRequest,
   PlayStepResponse,
+  StartStepResponse,
 } from "@/types/progress";
 
 export const getProgress = async (
@@ -27,4 +28,14 @@ export const playStep = async (
   payload: PlayStepRequest
 ): Promise<PlayStepResponse> => {
   return apiPost("/progress/play", payload);
+};
+
+export const startMoment = async (
+  playerId: string,
+  momentId: string
+): Promise<StartStepResponse> => {
+  return apiPost("/progress/start", {
+    player_id: playerId,
+    moment_id: momentId,
+  });
 };

@@ -1,61 +1,84 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Bell, UserCircle } from "lucide-react";
 
 export default function Navbar() {
-
+  const pathname = usePathname();
   const pendingMoments = 1;
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-gray-800 bg-gray-900/80 px-8 py-4 backdrop-blur">
+    <nav style={{
+      position: "sticky",
+      top: 0,
+      zIndex: 50,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "14px 28px",
+      borderBottom: "1px solid rgba(201,168,76,0.12)",
+      background: "rgba(10,10,15,0.92)",
+      backdropFilter: "blur(12px)",
+      fontFamily: "'DM Sans', system-ui, sans-serif",
+    }}>
 
-      <h1 className="text-xl font-bold text-white">
-        
-      </h1>
+      <span style={{
+        fontFamily: "'Playfair Display', Georgia, serif",
+        fontSize: 18,
+        letterSpacing: "0.08em",
+        color: "#c9a84c",
+      }}>
+        Momentos
+      </span>
 
-      <div className="flex items-center gap-8">
-
-        <Link
-          href="/"
-          className="text-gray-400 hover:text-white transition"
-        >
-          Inicio
-        </Link>
-
-        <Link
-          href="/dashboard"
-          className="text-gray-400 hover:text-white transition"
-        >
-          Dashboard
-        </Link>
-
-        {/* Notificaciones */}
-        <div className="relative cursor-pointer hover:scale-105 transition">
-
-          <Bell className="text-white" size={22} />
-
-          {pendingMoments > 0 && (
-            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
-              {pendingMoments}
-            </span>
-          )}
-
-        </div>
-
-        {/* Usuario */}
-        <div className="flex items-center gap-2 cursor-pointer hover:opacity-80">
-
-          <UserCircle size={28} className="text-white" />
-
-          <span className="text-sm text-gray-300">
-            Yanedis
-          </span>
-
-        </div>
-
+      <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+        {[
+          { href: "/", label: "Inicio" },
+          { href: "/dashboard", label: "Dashboard" },
+          { href: "/players/player_001/moments", label: "Mi historial" },
+        ].map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            style={{
+              fontSize: 11,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: pathname === link.href ? "#c9a84c" : "#9a9590",
+              textDecoration: "none",
+              transition: "color 0.2s",
+            }}
+          >
+            {link.label}
+          </Link>
+        ))}
       </div>
 
+      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+        <div style={{ position: "relative", cursor: "pointer" }}>
+          <Bell size={18} color="#9a9590" />
+          {pendingMoments > 0 && (
+            <span style={{
+              position: "absolute",
+              top: -2,
+              right: -2,
+              width: 7,
+              height: 7,
+              background: "#c9a84c",
+              borderRadius: "50%",
+              display: "inline-block",
+            }} />
+          )}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+          <UserCircle size={26} color="#9a9590" />
+          <span style={{ fontSize: 12, color: "#9a9590", letterSpacing: "0.04em" }}>
+            Yanedis
+          </span>
+        </div>
+      </div>
     </nav>
   );
 }
